@@ -6,12 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 )
-
-type stringToSlice []string
-type StringFloat64 float64
 
 type School struct {
 	SchoolId     int           `json:"id"`
@@ -19,7 +14,7 @@ type School struct {
 	Type         string        `json:"type"`
 	IsCatholic   bool          `json:"is_catholic"`
 	Language     string        `json:"language"`
-	Level        stringToSlice `json:"level"`
+	Level        StringToSlice `json:"level"`
 	City         string        `json:"city"`
 	CitySlug     string        `json:"city_slug"`
 	Board        string        `json:"board"`
@@ -34,53 +29,6 @@ type School struct {
 }
 
 type AllSchools []School
-
-func (ss *StringFloat64) UnmarshalJSON(b []byte) error {
-	var s interface{}
-
-	if err := json.Unmarshal(b, &s); err != nil {
-		return err
-	}
-	switch v := s.(type) {
-	case float64:
-		*ss = StringFloat64(v)
-	case string:
-		if v != "" {
-
-			fl, err := strconv.ParseFloat(v, 64)
-			if err != nil {
-				return err
-			}
-			*ss = StringFloat64(fl)
-
-		} else {
-			*ss = 0
-		}
-	}
-	return nil
-}
-
-func (ss *stringToSlice) UnmarshalJSON(b []byte) error {
-
-	var e error
-
-	if len(b) > 0 {
-		strInput := string(b)
-		if strInput == "null" {
-			return nil
-		}
-		if strInput == "" {
-			*ss = nil
-		}
-
-		*ss = strings.Split(strInput, ",")
-
-	} else {
-		return nil
-	}
-
-	return e
-}
 
 func main() {
 	fmt.Println("Starting DB Load...")
@@ -113,5 +61,7 @@ func main() {
 	}
 
 	fmt.Println("All good...")
+
+	TestMyFunc()
 
 }
