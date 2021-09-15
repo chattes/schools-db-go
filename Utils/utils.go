@@ -60,3 +60,25 @@ func (ss *StringToSlice) UnmarshalJSON(b []byte) error {
 
 	return e
 }
+
+type School struct {
+	SchoolId     int           `json:"id"`
+	Name         string        `json:"name"`
+	Type         string        `json:"type"`
+	IsCatholic   bool          `json:"is_catholic"`
+	Language     string        `json:"language"`
+	Level        StringToSlice `json:"level"`
+	City         string        `json:"city"`
+	CitySlug     string        `json:"city_slug"`
+	Board        string        `json:"board"`
+	FraserRating float64       `json:"fraser_rating"`
+	EQAORating   float64       `json:"eqao_rating"`
+	Address      string        `json:"address"`
+	Grades       string        `json:"grades"`
+	Website      string        `json:"website"`
+	PhoneNumber  string        `json:"phone_number"`
+	Latitude     StringFloat64 `json:"latitude"`
+	Longitude    StringFloat64 `json:"longitude"`
+}
+
+type AllSchools []School

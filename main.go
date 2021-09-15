@@ -6,34 +6,23 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/chattes/schools-db-go/database"
+	"github.com/chattes/schools-db-go/utils"
+	"github.com/joho/godotenv"
 )
-
-type School struct {
-	SchoolId     int           `json:"id"`
-	Name         string        `json:"name"`
-	Type         string        `json:"type"`
-	IsCatholic   bool          `json:"is_catholic"`
-	Language     string        `json:"language"`
-	Level        StringToSlice `json:"level"`
-	City         string        `json:"city"`
-	CitySlug     string        `json:"city_slug"`
-	Board        string        `json:"board"`
-	FraserRating float64       `json:"fraser_rating"`
-	EQAORating   float64       `json:"eqao_rating"`
-	Address      string        `json:"address"`
-	Grades       string        `json:"grades"`
-	Website      string        `json:"website"`
-	PhoneNumber  string        `json:"phone_number"`
-	Latitude     StringFloat64 `json:"latitude"`
-	Longitude    StringFloat64 `json:"longitude"`
-}
-
-type AllSchools []School
 
 func main() {
 	fmt.Println("Starting DB Load...")
 
-	asbPath, err := filepath.Abs("all-schools.json")
+	err := godotenv.Load()
+
+	if err != nil {
+		panic("Cannot read env file")
+	}
+
+	filePath := os.Getenv("FILE_PATH")
+	asbPath, err := filepath.Abs(filePath)
 	if err != nil {
 		fmt.Println("Error finding path")
 	}
@@ -42,6 +31,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		panic(err)
 	}
 
 	defer jsonFile.Close()
@@ -50,9 +40,10 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		panic(err)
 	}
 
-	var result AllSchools
+	var result utils.AllSchools
 
 	err = json.Unmarshal([]byte(schoolsBytes), &result)
 
@@ -60,8 +51,32 @@ func main() {
 		fmt.Println(err)
 	}
 
+	fmt.Println("Saveing data")
+
+	_, err = saveData(result)
+
+	if err != nil {
+		fmt.Println("An error occured")
+	}
 	fmt.Println("All good...")
 
-	TestMyFunc()
+}
+
+func saveData(data utils.AllSchools) (success bool, err error) {
+
+	db := new(database.MySql)
+
+	db.DropDB("schools")
+	_, err = db.CreateSchema("schools")
+
+	if err != nil {
+		panic(err)
+	}
+
+	db.CreateTable("schools", "school_info")
+
+	db.InsertValues(data)
+
+	return true, nil
 
 }
