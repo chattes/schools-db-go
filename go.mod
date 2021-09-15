@@ -1,4 +1,4 @@
-module github.com/chattes/schools-db-go
+module schools
 
 go 1.16
 

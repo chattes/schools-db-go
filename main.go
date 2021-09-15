@@ -7,8 +7,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/chattes/schools-db-go/database"
-	"github.com/chattes/schools-db-go/utils"
+	"schools/utils"
+
+	"schools/database"
+
 	"github.com/joho/godotenv"
 )
 
