@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"schools/utils"
+	"github.com/chattes/schools-db-go/utils"
 
 	_ "github.com/go-sql-driver/mysql"
 )
