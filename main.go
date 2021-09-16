@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/chattes/schools-db-go/utils"
 
 	"github.com/chattes/schools-db-go/database"
@@ -23,31 +25,35 @@ func main() {
 		panic("Cannot read env file")
 	}
 
-	filePath := os.Getenv("FILE_PATH")
-	asbPath, err := filepath.Abs(filePath)
+	// Get the base file from S3
+
+	sess, _ := session.NewSession(&aws.Config{
+		Region: aws.String("us-east-2")},
+	)
+
+	svc := s3.New(sess)
+	bucketName := os.Getenv("BUCKET_NAME")
+	file := os.Getenv("FILE_NAME")
+	response, err := svc.GetObject(&s3.GetObjectInput{
+		Bucket: &bucketName,
+		Key:    &file,
+	})
+
 	if err != nil {
-		fmt.Println("Error finding path")
+		panic("Unable to read file from S3...")
 	}
 
-	jsonFile, err := os.Open(asbPath)
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-
-	defer jsonFile.Close()
-
-	schoolsBytes, err := ioutil.ReadAll(jsonFile)
-
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		panic("Error occured reading file contents")
 	}
 
 	var result utils.AllSchools
 
-	err = json.Unmarshal([]byte(schoolsBytes), &result)
+	err = json.Unmarshal([]byte(body), &result)
 
 	if err != nil {
 		fmt.Println(err)
