@@ -40,7 +40,8 @@ func main() {
 	})
 
 	if err != nil {
-		panic("Unable to read file from S3...")
+
+		panic(fmt.Sprintf("Error S3: %e", err))
 	}
 
 	defer response.Body.Close()
